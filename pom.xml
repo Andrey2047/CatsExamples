@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>andrey2047</groupId>
+    <artifactId>CatsExamples</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0</version>
+
+    <properties>
+        <scala.major.version>2.12</scala.major.version>
+        <scala.minor.version>2.12.8</scala.minor.version>
+        <scala-maven-plugin.version>3.2.0</scala-maven-plugin.version>
+        <!-- Project build timestamp property -->
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+        <dependencies.scope>compile</dependencies.scope>
+        <spark.core.version>2.3.0</spark.core.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.minor.version}</version>
+            <scope>${dependencies.scope}</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.typelevel</groupId>
+            <artifactId>cats-core_2.12</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.typelevel</groupId>
+            <artifactId>cats-effect_2.12</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.chrisdavenport</groupId>
+            <artifactId>log4cats-core_2.12</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.chrisdavenport</groupId>
+            <artifactId>log4cats-slf4j_2.12</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.11</artifactId>
+            <version>3.2.0-M2</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src/main/scala</sourceDirectory>
+        <testSourceDirectory>src/test/scala</testSourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <executions>
+                    <execution>
+                        <id>run-local</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>spark-submit</executable>
+                            <arguments>
+                                <argument>--master</argument>
+                                <argument>local</argument>
+                                <argument>
+                                    ${project.build.directory}/${project.artifactId}-${project.version}.jar
+                                </argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>run-yarn</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <environmentVariables>
+                                <HADOOP_CONF_DIR>
+                                    ${basedir}/spark-remote/conf
+                                </HADOOP_CONF_DIR>
+                            </environmentVariables>
+                            <executable>spark-submit</executable>
+                            <arguments>
+                                <argument>--master</argument>
+                                <argument>yarn</argument>
+                                <argument>
+                                    ${project.build.directory}/${project.artifactId}-${project.version}.jar
+                                </argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>
